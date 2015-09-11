@@ -3,20 +3,28 @@ require "pathname"
 
 class Ulist
   class Entry
-    attr_reader :record, :cnt
+    attr_accessor :record, :cnt
 
     def initialize(hash_rec={})
-      @record = hash_rec[:record]
-      cnt = 1 unless hash_rec[:cnt]
+      @record = hash_rec[:record] || hash_rec["record"]
+      @cnt = (hash_rec[:cnt] || hash_rec["cnt"] || 1)
     end
 
-    def update(newrecord)
-      if record.nil?
-        record = newrecord
+    def self.for_value(value)
+      Entry.new({ record: value, cnt: 1 })
+    end
+
+    def update(newrecord, concat=false)
+      if @record.nil?
+        @record = newrecord
       else
-        cnt += 1
-        record = "#{record}, #{newrecord}"
+        @cnt += 1
+        @record = "#{@record}, #{newrecord}" if concat
       end
+    end
+
+    def to_s
+      record
     end
 
     def to_hash
@@ -32,20 +40,25 @@ class Ulist
     @path = Pathname.new("data/#{name}.json")
   end
 
+  def self.from_file(file)
+    # TODO clean
+    Ulist.new(File.basename(".json"))
+  end
+
   def list_hash
     @list_hash ||= if path.file?
       hsh = JSON.parse(path.read)
       hsh.each { |k, v| hsh[k] = Entry.new(v) }
     else
-      Hash.new { |h, k| h[k] = Entry.new }
+      {}
     end
   end
 
-  def update(key, value, upd=true)
-    if upd
+  def update(key, value)
+    if list_hash[key]
       list_hash[key].update(value)
     else
-      list_hash[key] = Entry.new(value)
+      list_hash[key] = Entry.for_value(value)
     end
   end
 
@@ -55,14 +68,15 @@ class Ulist
 
   # TODO update inject
   def to_hash
-    list_hash.inject({}) do |h, (k, v)|
-      h[k] = v.to_hash
+    puts list_hash
+    Hash[list_hash.map{ |k, v| [k, v.to_hash] }]
   end
 
   def write!
     path.parent.mkpath
+    to_write = to_hash.to_json
     File.open(path, "w") do |f|
-      f.write(list_hash.to_hash.to_json)
+      f.write(to_write)
     end
   end
 end

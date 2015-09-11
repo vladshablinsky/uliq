@@ -1,0 +1,59 @@
+#!/usr/bin/env ruby
+
+require "optparse"
+require_relative "../lib/ulist_controller.rb"
+
+options = {}
+opt_parser = OptionParser.new do |opts|
+  opts.on("-aLIST", "--add=LIST",
+      "add new key to specified list, require the LIST before executing") do |list|
+    options[:add] = true
+    options[:list] = list.downcase
+  end
+
+  opts.on("-nLIST", "--new=LIST",
+      "create new list, require the LIST before executing") do |list|
+    options[:new] = true
+    options[:list] = list.downcase
+  end
+
+  opts.on("-sLIST", "--search=LIST", "search through the lists") do |list|
+    options[:search] = true
+    options[:list] = list.downcase
+  end
+
+  opts.on("-kKEY", "--key=KEY",
+      "key you want to work with, require the KEY before executing") do |key|
+    options[:key] = key.downcase
+  end
+
+  opts.on("-vVALUE", "--value=VALUE",
+      "value for the key, require the VALUE before executing") do |value|
+    options[:value] = value
+  end
+
+  opts.on("-l", "--list", "show all the lists") do
+    options[:lists] = true
+  end
+
+  opts.on_tail("-h", "--help", "show this message") do
+    puts opts
+    exit
+  end
+end
+
+begin
+  opt_parser.parse!
+  controller = UlistController.new(options)
+  controller.proceed
+rescue OptionParser::MissingArgument => e
+  puts e.to_s
+  exit
+rescue UlistController::UlistControllerParseError => e
+  puts e.to_s
+  exit
+rescue Exception => e
+  puts "error occured while executing uliq"
+  puts e.to_s
+  puts e.backtrace
+end

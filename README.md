@@ -10,7 +10,10 @@ I think described above usecase is not the only one, at least for me.
 TODO
 ====
 
-- [  ] support different options, use OptionParser
-- [  ] use db or use json's or smth?
-- [  ] if db, import should be supported
-- [  ] others
+- [x] support different options, use OptionParser
+- [x] use db or use json's or smth?
+- [ ] if db, import should be supported
+- [ ] relative path
+- [ ] allow using default list
+- [ ] not so dirty
+- [ ] what if create the same list twice???
