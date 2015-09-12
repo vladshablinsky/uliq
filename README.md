@@ -13,7 +13,9 @@ TODO
 - [x] support different options, use OptionParser
 - [x] use db or use json's or smth?
 - [ ] if db, import should be supported
-- [ ] relative path
-- [ ] allow using default list
+- [x] relative path
+- [x] allow using default list
 - [ ] not so dirty
 - [ ] what if create the same list twice???
+- [ ] probably -n option is useless
+- [ ] allow empty lines for value?

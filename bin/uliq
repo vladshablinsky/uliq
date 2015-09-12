@@ -5,10 +5,10 @@ require_relative "../lib/ulist_controller.rb"
 
 options = {}
 opt_parser = OptionParser.new do |opts|
-  opts.on("-aLIST", "--add=LIST",
+  opts.on("-a", "--add [LIST]",
       "add new key to specified list, require the LIST before executing") do |list|
     options[:add] = true
-    options[:list] = list.downcase
+    options[:list] = list.downcase if list
   end
 
   opts.on("-nLIST", "--new=LIST",
@@ -38,7 +38,6 @@ opt_parser = OptionParser.new do |opts|
 
   opts.on_tail("-h", "--help", "show this message") do
     puts opts
-    exit
   end
 end
 

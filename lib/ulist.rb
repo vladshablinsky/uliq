@@ -1,5 +1,6 @@
 require "json"
 require "pathname"
+require_relative "config"
 
 class Ulist
   class Entry
@@ -37,11 +38,10 @@ class Ulist
 
   def initialize(name)
     @name = name
-    @path = Pathname.new("data/#{name}.json")
+    @path = ULIQ_DATA_PATH.join("#{@name}.json")
   end
 
   def self.from_file(file)
-    # TODO clean
     Ulist.new(File.basename(".json"))
   end
 
@@ -68,8 +68,13 @@ class Ulist
 
   # TODO update inject
   def to_hash
-    puts list_hash
     Hash[list_hash.map{ |k, v| [k, v.to_hash] }]
+  end
+
+  def print
+    list_hash.each do |k, v|
+      puts "#{k} -- #{v.record} (#{v.cnt})"
+    end
   end
 
   def write!
@@ -78,5 +83,6 @@ class Ulist
     File.open(path, "w") do |f|
       f.write(to_write)
     end
+    puts "#{path} written"
   end
 end

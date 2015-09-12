@@ -4,7 +4,7 @@ require "pathname"
 class UlistController
   class UlistControllerParseError < RuntimeError
     def initialize(option)
-      super("can't execute with #{option}, read help")
+      super("can't execute with #{option.to_s}, it's probably missed, read help")
     end
   end
 
@@ -14,6 +14,32 @@ class UlistController
     @options = options
   end
 
+  def ulist
+    @ulist ||= if options[:list]
+                Ulist.new(options[:list])
+              else
+                Ulist.new(ULIQ_DEFAULT_LIST)
+              end
+
+    raise UlistControllerParseError, :list unless @ulist
+
+    @ulist
+  end
+
+  def key
+    @key ||= options[:key]
+    raise UlistControllerParseError, :key unless @key
+
+    @key
+  end
+
+  def value
+    @value ||= options[:value]
+    raise UlistControllerParseError, :value unless @value
+
+    @value
+  end
+
   def search_list(list, key)
     if val = list.list_hash[key]
       puts val
@@ -21,39 +47,33 @@ class UlistController
     end
   end
 
+
   def proceed
     if options[:search]
-      raise UlistControllerParseError, :key unless options[:key]
-      if list = options[:list]
+      begin
         puts "searching..."
-        search_list(Ulist.new(list), options[:key])
-      else
-        ulists.each do |list|
-          puts "searching in #{list.name}..."
-          search_list(list, options[:key])
-        end
+        search_list(ulist, key)
+      rescue UlistControllerParseError
+        # TODO
+        # - search through all the list if no list given
       end
     elsif options[:add]
-      raise UlistControllerParseError, :list unless options[:list]
-      raise UlistControllerParseError, :key unless options[:key]
-      raise UlistControllerParseError, :value unless options[:value]
-
-      list = Ulist.new(options[:list])
-      key, value = options[:key], options[:value]
-      list.update(key, value)
-      puts "#{list.name} now has #{list.list_hash[key]}"
-      list.write!
+      ulist.update(key, value)
+      puts "\"#{ulist.name}\" now has #{ulist.list_hash[key].record}"
+      ulist.write!
     elsif options[:new]
-      raise UlistControllerParseError, :list unless options[:list]
-      list = Ulist.new(options[:list])
-      list.write!
-    elsif options[:lists]
-      ulists.each { |list| print list }
+      ulist.write!
+    elsif options[:show]
+      ulists.each do |list|
+        puts list.name
+        list.print
+        puts "=" * 80
+      end
     end
   end
 
   def ulists
-    @ulists ||= Dir["data/*"].select do |f|
+    @ulists ||= Dir["#{ULIQ_DATA_PATH}/*"].select do |f|
       next unless File.file? f
       Ulist.from_file(f)
     end
