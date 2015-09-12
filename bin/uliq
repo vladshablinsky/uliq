@@ -33,7 +33,7 @@ opt_parser = OptionParser.new do |opts|
   end
 
   opts.on("-l", "--list", "show all the lists") do
-    options[:lists] = true
+    options[:show] = true
   end
 
   opts.on_tail("-h", "--help", "show this message") do

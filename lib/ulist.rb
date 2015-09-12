@@ -42,7 +42,7 @@ class Ulist
   end
 
   def self.from_file(file)
-    Ulist.new(File.basename(".json"))
+    Ulist.new(File.basename(file, ".json"))
   end
 
   def list_hash
@@ -81,7 +81,7 @@ class Ulist
     path.parent.mkpath
     to_write = to_hash.to_json
     File.open(path, "w") do |f|
-      f.write(to_write)
+      f.write("#{to_write}\n")
     end
     puts "#{path} written"
   end

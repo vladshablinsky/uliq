@@ -42,7 +42,6 @@ class UlistController
 
   def search_list(list, key)
     if val = list.list_hash[key]
-      puts val
       puts "#{key.upcase} -- #{val.record} (cnt: #{val.cnt})"
     end
   end
@@ -73,7 +72,7 @@ class UlistController
   end
 
   def ulists
-    @ulists ||= Dir["#{ULIQ_DATA_PATH}/*"].select do |f|
+    @ulists ||= Dir["#{ULIQ_DATA_PATH}/*"].map do |f|
       next unless File.file? f
       Ulist.from_file(f)
     end
